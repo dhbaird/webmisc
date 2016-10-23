@@ -1,0 +1,24 @@
+{
+  "name": "webmisc",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "David Baird <dhbaird@gmail.com>"
+  ],
+  "license": "All rights reserved.",
+  "homepage": "https://github.com/dhbaird/webmisc",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "codemirror-5": "codemirror#^5.19.0",
+    "bootstrap-3": "bootstrap#^3.3.7",
+    "jquery-3": "jquery#^3.1.1",
+    "modernizr-3": "modernizr#^3.3.1",
+    "babel-standalone-6": "babel-standalone#^6.14.0"
+  }
+}
