@@ -1,36 +1,104 @@
-// TODO rename to main-require.js
-require.config({
-    paths: {
-        "jquery": "/~dbaird/webmisc/lib/jquery-3/dist/jquery.min",
-        //"es6": "/~dbaird/webmisc/lib/requirejs-babel/es6",
-        "jsx-loader": "/~dbaird/webmisc/lib/requirejs-babel-jsx",
-        "babel": "/~dbaird/webmisc/lib/babel-standalone-6/babel.min",
-        "babel-standalone": "/~dbaird/webmisc/lib/babel-standalone-6/babel.min",
-        "bootstrap": "/~dbaird/webmisc/lib/bootstrap-3/dist/js/bootstrap.min",
-        "react": "/~dbaird/webmisc/lib/react-15/dist/react-with-addons.min",
-        "react-dom": "/~dbaird/webmisc/lib/react-dom-15/dist/react-dom.min",
-        "codemirror": "/~dbaird/webmisc/lib/codemirror-5/lib/codemirror",
-        "codemirror-javascript": "/~dbaird/webmisc/lib/codemirror-5/mode/javascript/javascript",
-        "codemirror-jsx": "/~dbaird/webmisc/lib/codemirror-5/mode/jsx/jsx",
-        "codemirror-clike": "/~dbaird/webmisc/lib/codemirror-5/mode/clike/clike",
-        "codemirror-sql": "/~dbaird/webmisc/lib/codemirror-5/mode/sql/sql",
-        "codemirror-sql-hint": "/~dbaird/webmisc/lib/codemirror-5/addon/hint/sql-hint",
-        "goldenlayout": "/~dbaird/webmisc/lib/golden-layout-1/dist/goldenlayout.min",
-        //"babel-plugin-transform-es2015-modules-amd": "/~dbaird16/webmisc/lib/babel-plugin-transform-es2015-modules-amd/lib/index", // http://babeljs.io/docs/plugins/transform-es2015-modules-amd/
-    },
-    shim: {
-        bootstrap: ['jquery'],
-    },
-});
+// TODO implement a metadata format which declares these dependencies, enforce with https://github.com/requirejs/requirejs/wiki/Internal-API:-onResourceLoad
 
-(define(function(require) {
+//import foo from 'jsx-loader!foo' // to load jsx file (foo.jsx)
 
-    var jQuery = require('jquery');
-    require('oof');
-    var mygoldenlayout = require('jsx-loader!mygoldenlayout');
-    console.log('>>>', mygoldenlayout);
-    //var goldenlayout = require('goldenlayout');
-    //console.log('HERE', jQuery);
+import jQuery from 'jquery';
+import _bootstrap from 'bootstrap'; // make sure bootstrap is loaded
+import React from 'react';
+import ReactDOM from 'react-dom';
+import GoldenLayout from 'goldenlayout';
+import CodeMirror from 'codemirror';
+// TODO raven and sentry.io
 
-}));
+window.React = React; // XXX hack for goldenlayout
+window.ReactDOM = ReactDOM; // XXX hack for goldenlayout
 
+class MyApplicationState {
+    constructor() {
+    }
+};
+
+class MyCodeMirror extends React.Component {
+    constructor()
+    {
+        super();
+        this.codeMirror = null;
+        this.divReady = this.divReady.bind(this);
+    }
+
+    divReady(elem)
+    {
+        console.log('READY', elem);
+        var codeMirrorOptions = {
+            lineNumbers: true,
+        };
+        this.codeMirror = new CodeMirror(function(codeMirrorElem) {
+            elem.appendChild(codeMirrorElem);
+        }, codeMirrorOptions);
+    }
+    render()
+    {
+        var self = this;
+        return (<div style={{position: 'relative', height: '100%'}} ref={self.divReady}></div>);
+    }
+}
+
+class MyCodeMirrorWindow extends React.Component {
+    constructor()
+    {
+        super();
+    }
+    render()
+    {
+        return <MyCodeMirror/>;
+    }
+}
+
+class MyHelloWindow extends React.Component {
+    constructor()
+    {
+        super();
+    }
+    render()
+    {
+        return <h1>Hello World</h1>;
+    }
+}
+
+class ApplicationWindowManager {
+    constructor() {
+        var appData = new MyApplicationState();
+        var layoutConfig = {
+            content: [ // https://www.golden-layout.com/docs/ItemConfig.html
+                {
+                    type: 'row',
+                    content: [
+                        {
+                            type: 'react-component',
+                            component: 'MyHelloWindow',
+                            // XXX appData should be injected into the constructor...
+                            props: { appData: appData }
+                        },
+                        {
+                            type: 'react-component',
+                            component: 'MyCodeMirrorWindow',
+                            // XXX appData should be injected into the constructor...
+                            props: { appData: appData }
+                        },
+                    ],
+                },
+            ],
+        };
+        this.d_goldenLayout = new GoldenLayout(layoutConfig, document.getElementById('main'));
+        this.d_goldenLayout.registerComponent('MyHelloWindow', MyHelloWindow);
+        this.d_goldenLayout.registerComponent('MyCodeMirrorWindow', MyCodeMirrorWindow);
+        this.d_goldenLayout.init();
+        console.log('xxx', this.d_goldenLayout);
+    }
+};
+
+function main() {
+    var windowManager = new ApplicationWindowManager();
+}
+
+main();
