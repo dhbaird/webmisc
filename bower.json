@@ -31,6 +31,7 @@
     "eventEmitter-5": "eventEmitter#^5.1.0",
     "raven-js-3": "raven-js#^3.8.1",
     "microplugin-0": "microplugin#^0.0.3",
-    "sifter-0": "sifter#^0.5.2"
+    "sifter-0": "sifter#^0.5.2",
+    "rison-0": "rison#*"
   }
 }
